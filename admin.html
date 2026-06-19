@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KRUZZARENA Admin Panel</title>
+    <link rel="stylesheet" href="app.css?v=41" />
+    <link rel="stylesheet" href="app.css?v=50" />
+
+<style>
+  /* FIX LOGO HEADER ADMIN */
+  .admin-mini-header .viewer-logos {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: 1fr auto 1fr !important;
+    align-items: center !important;
+    gap: 12px !important;
+    margin: 0 0 18px 0 !important;
+    padding: 0 !important;
+
+    position: static !important;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+    height: auto !important;
+  }
+
+  .admin-mini-header .viewer-logos img {
+    position: static !important;
+    transform: none !important;
+    display: block !important;
+    object-fit: contain !important;
+  }
+
+  .admin-mini-header .viewer-logos img:nth-child(1) {
+    justify-self: start !important;
+    height: 58px !important;
+    max-width: 90px !important;
+  }
+
+  .admin-mini-header .viewer-logos img:nth-child(2) {
+    justify-self: center !important;
+    height: 48px !important;
+    max-width: 270px !important;
+  }
+
+  .admin-mini-header .viewer-logos img:nth-child(3) {
+    justify-self: end !important;
+    height: 58px !important;
+    max-width: 90px !important;
+  }
+
+  @media (max-width: 680px) {
+    .admin-mini-header .viewer-logos img:nth-child(1),
+    .admin-mini-header .viewer-logos img:nth-child(3) {
+      height: 42px !important;
+      max-width: 58px !important;
+    }
+
+    .admin-mini-header .viewer-logos img:nth-child(2) {
+      height: 32px !important;
+      max-width: 170px !important;
+    }
+  }
+</style>
+  </head>
+  <body>
+    <main class="app-shell admin-shell">
+      <nav class="topbar admin-topbar">
+        <div class="brand"><i class="brand-mark"></i>KRUZZ<span>ARENA</span> - Admin Panel</div>
+        <div class="top-actions">
+          <button id="addArenaBtn" class="button" type="button">+ Lapangan</button>
+          <a class="button secondary" href="viewer.html" target="_blank">Lihat Live</a>
+          <button id="logoutBtn" class="button secondary" type="button">Keluar</button>
+        </div>
+      </nav>
+
+      <section class="admin-mini-header">
+        <div class="viewer-logos" aria-label="Logo event">
+          <img class="viewer-logo-img logo-square" src="medali.png" alt="Medali UNCHALL 2026" />
+          <img class="viewer-logo-img" src="kruzzarena-panjang.png" alt="KRUZZARENA" />
+          <img class="viewer-logo-img logo-square" src="logo-bandae.png" alt="Ultimate Bandae" />
+        </div>
+        <div class="admin-title-fields">
+          <label class="field">
+            <span>Nama Event</span>
+            <input id="eventName" name="eventName" />
+          </label>
+          <label class="field">
+            <span>Subjudul</span>
+            <input id="subtitle" name="subtitle" />
+          </label>
+          <button id="saveAllBtn" class="button" type="button">Simpan Semua</button>
+        </div>
+      </section>
+
+      <form id="adminForm">
+        <section id="arenaEditors" class="operator-grid"></section>
+      </form>
+
+      <div id="arenaModal" class="modal" aria-hidden="true">
+        <div class="modal-card">
+          <header class="modal-head">
+            <h2 id="modalTitle">Edit Lapangan</h2>
+            <button id="closeModalBtn" class="icon-button" type="button">x</button>
+          </header>
+
+          <div class="modal-body">
+            <label class="field">
+              <span>Nama Lapangan</span>
+              <input id="modalArenaName" />
+            </label>
+
+            <div class="admin-section">
+              <h3>Warna Tema</h3>
+              <div class="theme-options">
+                <label class="theme-option red">
+                  <input type="radio" name="modalArenaColor" value="red" />
+                  <span>Merah</span>
+                </label>
+                <label class="theme-option blue">
+                  <input type="radio" name="modalArenaColor" value="blue" />
+                  <span>Biru</span>
+                </label>
+                <label class="theme-option green">
+                  <input type="radio" name="modalArenaColor" value="green" />
+                  <span>Hijau</span>
+                </label>
+              </div>
+            </div>
+
+            <label class="field">
+              <span>Set Nomor Partai Aktif</span>
+              <input id="modalArenaCurrent" inputmode="numeric" />
+            </label>
+
+            <div class="modal-setting-grid">
+              <label class="field">
+                <span>Jumlah Partai</span>
+                <input id="modalArenaTotal" inputmode="numeric" />
+              </label>
+              <label class="field">
+                <span>Masuk Area Pertandingan</span>
+                <input id="modalArenaAreaCount" inputmode="numeric" />
+              </label>
+              <label class="field">
+                <span>Masuk Ruang Tunggu</span>
+                <input id="modalArenaWaitingCount" inputmode="numeric" />
+              </label>
+              <label class="field">
+                <span>Mohon Bersiap</span>
+                <input id="modalArenaReadyCount" inputmode="numeric" />
+              </label>
+            </div>
+          </div>
+
+          <footer class="modal-actions">
+            <button id="deleteArenaBtn" class="button danger" type="button">Hapus</button>
+            <button id="clearArenaBtn" class="button warning" type="button">Reset</button>
+            <button id="cancelModalBtn" class="button secondary" type="button">Tutup</button>
+            <button id="saveModalBtn" class="button" type="button">Simpan</button>
+          </footer>
+        </div>
+      </div>
+
+      <div id="toast" class="toast">Data berhasil disimpan ke viewer.</div>
+    </main>
+
+    <script src="config.js"></script>
+    <script type="module">
+      import { buildArenaView, defaultArenaSettings, loadState, makeArena, saveState } from "./state.js";
+
+      if (sessionStorage.getItem("kruzzarena-admin") !== "true") {
+        window.location.href = "index.html";
+      }
+
+      let currentState = await loadState();
+      let activeArenaIndex = null;
+
+      const eventName = document.querySelector("#eventName");
+      const subtitle = document.querySelector("#subtitle");
+      const editors = document.querySelector("#arenaEditors");
+      const toast = document.querySelector("#toast");
+      const modal = document.querySelector("#arenaModal");
+      const modalTitle = document.querySelector("#modalTitle");
+      const modalArenaName = document.querySelector("#modalArenaName");
+      const modalArenaCurrent = document.querySelector("#modalArenaCurrent");
+      const modalArenaTotal = document.querySelector("#modalArenaTotal");
+      const modalArenaAreaCount = document.querySelector("#modalArenaAreaCount");
+      const modalArenaWaitingCount = document.querySelector("#modalArenaWaitingCount");
+      const modalArenaReadyCount = document.querySelector("#modalArenaReadyCount");
+      const deleteArenaBtn = document.querySelector("#deleteArenaBtn");
+
+      function numberValue(value, fallback, min, max) {
+        const number = Math.round(Number(value));
+        if (!Number.isFinite(number)) return fallback;
+        return Math.min(Math.max(number, min), max);
+      }
+
+      function collectState() {
+        return {
+          ...currentState,
+          eventName: eventName.value,
+          subtitle: subtitle.value
+        };
+      }
+
+      function renderBoxes(items, className, columns) {
+        return `<div class="operator-row ${columns} ${className}">${items.map((item) => `
+          <div class="operator-box ${className} ${item ? "" : "empty"}">${item || "-"}</div>
+        `).join("")}</div>`;
+      }
+
+      function renderArenaCard(arenaData, arenaIndex) {
+        const arena = buildArenaView(arenaData);
+
+        return `
+          <article class="operator-card ${arena.color}">
+            <header class="operator-head">
+              <h2>${arena.name}</h2>
+              <p class="operator-total">Total Partai: <strong>${arena.totalMatches}</strong></p>
+              <button class="icon-button edit-arena-btn" type="button" data-index="${arenaIndex}" title="Edit lapangan">⚙</button>
+            </header>
+
+            <div class="operator-current">
+              <span>Partai</span>
+              <strong>${arena.current || "-"}</strong>
+            </div>
+
+            <div class="operator-section">
+              <h3>Masuk Area Pertandingan</h3>
+              ${renderBoxes(arena.area, "area", "two")}
+            </div>
+
+            <div class="operator-section">
+              <h3>Ruang Tunggu</h3>
+              ${renderBoxes(arena.waiting, "waiting", "auto")}
+            </div>
+
+            <div class="operator-section">
+              <h3>Mohon Bersiap</h3>
+              ${renderBoxes(arena.ready, "ready", "auto")}
+            </div>
+
+            <div class="operator-actions">
+              <button class="button secondary compact back-arena-btn" type="button" data-index="${arenaIndex}">Back</button>
+              <button class="button compact next-arena-btn" type="button" data-index="${arenaIndex}">Next</button>
+            </div>
+          </article>
+        `;
+      }
+
+      function renderEditors(state) {
+        eventName.value = state.eventName;
+        subtitle.value = state.subtitle;
+        editors.innerHTML = state.arenas.map(renderArenaCard).join("");
+
+        document.querySelectorAll(".edit-arena-btn").forEach((button) => {
+          button.addEventListener("click", () => openArenaModal(Number(button.dataset.index)));
+        });
+        document.querySelectorAll(".back-arena-btn").forEach((button) => {
+          button.addEventListener("click", () => moveArena(Number(button.dataset.index), -1));
+        });
+        document.querySelectorAll(".next-arena-btn").forEach((button) => {
+          button.addEventListener("click", () => moveArena(Number(button.dataset.index), 1));
+        });
+      }
+
+      async function moveArena(arenaIndex, direction) {
+        const nextState = collectState();
+        const arena = nextState.arenas[arenaIndex];
+        const current = numberValue(arena.current, defaultArenaSettings.current, 1, arena.totalMatches);
+        const nextCurrent = direction > 0
+          ? Math.min(current + 1, arena.totalMatches)
+          : Math.max(current - 1, 1);
+
+        nextState.arenas[arenaIndex] = {
+          ...arena,
+          current: nextCurrent
+        };
+
+        currentState = await saveState(nextState);
+        renderEditors(currentState);
+        showToast(`${direction > 0 ? "NEXT" : "BACK"} ${currentState.arenas[arenaIndex].name} berhasil.`);
+      }
+
+      async function saveAndRender(message) {
+        currentState = await saveState(collectState());
+        renderEditors(currentState);
+        showToast(message);
+      }
+
+      function showToast(message) {
+        toast.textContent = message;
+        toast.classList.add("show");
+        setTimeout(() => toast.classList.remove("show"), 1800);
+      }
+
+      function openArenaModal(index) {
+        activeArenaIndex = index;
+        const arena = collectState().arenas[index];
+        modalTitle.textContent = `Edit ${arena.name}`;
+        modalArenaName.value = arena.name;
+        modalArenaCurrent.value = arena.current;
+        modalArenaTotal.value = arena.totalMatches;
+        modalArenaAreaCount.value = arena.areaCount;
+        modalArenaWaitingCount.value = arena.waitingCount;
+        modalArenaReadyCount.value = arena.readyCount;
+        document.querySelector(`input[name="modalArenaColor"][value="${arena.color}"]`).checked = true;
+        deleteArenaBtn.disabled = currentState.arenas.length <= 1;
+        modal.classList.add("show");
+        modal.setAttribute("aria-hidden", "false");
+      }
+
+      function closeArenaModal() {
+        modal.classList.remove("show");
+        modal.setAttribute("aria-hidden", "true");
+        activeArenaIndex = null;
+      }
+
+      document.querySelector("#saveAllBtn").addEventListener("click", () => saveAndRender("Judul event berhasil disimpan."));
+
+      document.querySelector("#addArenaBtn").addEventListener("click", async () => {
+        const baseState = collectState();
+        const nextNumber = baseState.arenas.length + 1;
+        const colors = ["red", "blue", "green"];
+        currentState = await saveState({
+          ...baseState,
+          arenas: [
+            ...baseState.arenas,
+            makeArena(`Lapangan ${String.fromCharCode(64 + nextNumber)}`, colors[(nextNumber - 1) % colors.length])
+          ]
+        });
+        renderEditors(currentState);
+        showToast("Lapangan baru ditambahkan.");
+      });
+
+      document.querySelector("#saveModalBtn").addEventListener("click", async () => {
+        const nextState = collectState();
+        const selectedColor = document.querySelector('input[name="modalArenaColor"]:checked').value;
+        const totalMatches = numberValue(modalArenaTotal.value, defaultArenaSettings.totalMatches, 1, 999);
+        const current = numberValue(modalArenaCurrent.value, defaultArenaSettings.current, 1, totalMatches);
+
+        nextState.arenas[activeArenaIndex] = {
+          ...nextState.arenas[activeArenaIndex],
+          name: modalArenaName.value,
+          color: selectedColor,
+          current,
+          totalMatches,
+          areaCount: numberValue(modalArenaAreaCount.value, defaultArenaSettings.areaCount, 0, 20),
+          waitingCount: numberValue(modalArenaWaitingCount.value, defaultArenaSettings.waitingCount, 0, 30),
+          readyCount: numberValue(modalArenaReadyCount.value, defaultArenaSettings.readyCount, 0, 30)
+        };
+
+        currentState = await saveState(nextState);
+        renderEditors(currentState);
+        closeArenaModal();
+        showToast("Pengaturan lapangan disimpan.");
+      });
+
+      document.querySelector("#clearArenaBtn").addEventListener("click", async () => {
+  if (!confirm("Kosongkan semua angka pada lapangan ini?")) return;
+
+  const nextState = collectState();
+
+  nextState.arenas[activeArenaIndex] = {
+    ...nextState.arenas[activeArenaIndex],
+    current: "",
+    totalMatches: 0
+  };
+
+  currentState = await saveState(nextState);
+  renderEditors(currentState);
+  closeArenaModal();
+  showToast("Semua angka lapangan berhasil dikosongkan.");
+});
+
+      deleteArenaBtn.addEventListener("click", async () => {
+        if (currentState.arenas.length <= 1) return;
+        if (!confirm("Hapus lapangan ini dari dashboard?")) return;
+        const nextState = collectState();
+        nextState.arenas.splice(activeArenaIndex, 1);
+        currentState = await saveState(nextState);
+        renderEditors(currentState);
+        closeArenaModal();
+        showToast("Lapangan berhasil dihapus.");
+      });
+
+      document.querySelector("#closeModalBtn").addEventListener("click", closeArenaModal);
+      document.querySelector("#cancelModalBtn").addEventListener("click", closeArenaModal);
+
+      document.querySelector("#logoutBtn").addEventListener("click", () => {
+        sessionStorage.removeItem("kruzzarena-admin");
+        window.location.href = "index.html";
+      });
+
+      renderEditors(currentState);
+    </script>
+  </body>
+</html>

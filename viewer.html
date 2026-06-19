@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KRUZZARENA Live Match Dashboard</title>
+    <link rel="stylesheet" href="app.css?v=49" />
+    <link rel="stylesheet" href="app.css?v=50" />
+
+<style>
+  /* FIX PAKSA LOGO VIEWER */
+  .viewer-header {
+    position: relative !important;
+  }
+
+  .viewer-header .viewer-logos {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: 1fr auto 1fr !important;
+    align-items: center !important;
+    gap: 10px !important;
+    margin: 0 0 16px 0 !important;
+    padding: 0 !important;
+    position: static !important;
+  }
+
+  .viewer-header .viewer-logos img {
+    position: static !important;
+    transform: none !important;
+    display: block !important;
+    object-fit: contain !important;
+  }
+
+  .viewer-header .viewer-logos img:nth-child(1) {
+    justify-self: start !important;
+    height: 58px !important;
+    max-width: 90px !important;
+  }
+
+  .viewer-header .viewer-logos img:nth-child(2) {
+    justify-self: center !important;
+    height: 48px !important;
+    max-width: 270px !important;
+  }
+
+  .viewer-header .viewer-logos img:nth-child(3) {
+    justify-self: end !important;
+    height: 58px !important;
+    max-width: 90px !important;
+  }
+
+  body.mobile-landscape-viewer .viewer-header .viewer-logos {
+    margin-bottom: 4px !important;
+  }
+
+  body.mobile-landscape-viewer .viewer-header .viewer-logos img:nth-child(1),
+  body.mobile-landscape-viewer .viewer-header .viewer-logos img:nth-child(3) {
+    height: 24px !important;
+    max-width: 36px !important;
+  }
+
+  body.mobile-landscape-viewer .viewer-header .viewer-logos img:nth-child(2) {
+    height: 20px !important;
+    max-width: 120px !important;
+  }
+</style>
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="viewer-header">
+        <div class="viewer-logos" aria-label="Logo event">
+  <img class="viewer-logo-img logo-square" src="medali.png" alt="Medali UNCHALL 2026" />
+  <img class="viewer-logo-img" src="kruzzarena-panjang.png" alt="KRUZZARENA" />
+  <img class="viewer-logo-img logo-square" src="logo-bandae.png" alt="Ultimate Bandae" />
+</div>
+        <h1 id="viewerTitle" class="viewer-title">KRUZZARENA LIVE MATCH DASHBOARD</h1>
+        <p id="viewerSubtitle" class="viewer-subtitle">TAEKWONDO ULTIMATE BANDAE CHALLENGE</p>
+      </section>
+
+      <section id="viewerGrid" class="viewer-grid" aria-live="polite"></section>
+
+      <footer class="viewer-footer">
+        <span>Viewer Mode</span>
+        <span id="clock">00.00.00</span>
+      </footer>
+    </main>
+
+    <script src="config.js"></script>
+    <script type="module">
+      import { loadState, subscribeState, buildArenaView } from "./state.js";
+
+      const grid = document.querySelector("#viewerGrid");
+      const title = document.querySelector("#viewerTitle");
+      const subtitle = document.querySelector("#viewerSubtitle");
+      const clock = document.querySelector("#clock");
+
+      function renderBoxes(items, className, columns) {
+        return `<div class="number-row ${columns}">${items.map((item) => `
+          <div class="box-number ${className} ${item ? "" : "empty"}">${item || "-"}</div>
+        `).join("")}</div>`;
+      }
+
+      function renderArena(arenaData) {
+        const arena = buildArenaView(arenaData);
+        return `
+          <article class="match-card ${arena.color}">
+            <header class="arena-head"><h2>${arena.name}</h2></header>
+            <div class="current-match">
+              <div>
+                <span class="current-label">Partai</span>
+                <span class="current-number">${arena.current || "-"}</span>
+              </div>
+            </div>
+
+            <h3 class="section-label">Masuk Area Pertandingan</h3>
+            ${renderBoxes(arena.area, "area", "cols-2")}
+
+            <h3 class="section-label">Ruang Tunggu</h3>
+            ${renderBoxes(arena.waiting, "waiting", "cols-5")}
+
+            <h3 class="section-label">Mohon Bersiap</h3>
+            ${renderBoxes(arena.ready, "ready", "cols-5")}
+          </article>
+        `;
+      }
+
+      function render(state) {
+        title.textContent = state.eventName;
+        subtitle.textContent = state.subtitle;
+        grid.innerHTML = state.arenas.map(renderArena).join("");
+      }
+
+      function tick() {
+        const now = new Date();
+        clock.textContent = now.toLocaleTimeString("id-ID", { hour12: false }).replaceAll(":", ".");
+      }
+
+      render(await loadState());
+      await subscribeState(render);
+      tick();
+      setInterval(tick, 1000);
+    </script>
+   <script>
+  function setMobileLandscapeMode() {
+    const isLandscape = window.innerWidth > window.innerHeight;
+    const isMobileWidth = window.innerWidth <= 1200;
+
+    document.body.classList.toggle(
+      "mobile-landscape-viewer",
+      isLandscape && isMobileWidth
+    );
+  }
+
+  setMobileLandscapeMode();
+  window.addEventListener("resize", setMobileLandscapeMode);
+  window.addEventListener("orientationchange", function () {
+    setTimeout(setMobileLandscapeMode, 300);
+  });
+</script>
+  </body>
+</html>
