@@ -100,12 +100,19 @@ body {
   letter-spacing: 0px !important;
 }
 
-/* Header */
+/* Header & Layout Full Width Fix */
+.viewer-header, .viewer-grid, .viewer-footer {
+  width: 98% !important;
+  max-width: 1900px !important;
+}
+
 .viewer-header {
   border-radius: 20px;
   backdrop-filter: blur(12px);
   background: linear-gradient(90deg, rgba(255, 45, 29, .2), rgba(35, 135, 255, .25)) !important;
   border: 1px solid rgba(255,255,255,0.1) !important;
+  padding-left: 50px !important;
+  padding-right: 50px !important;
 }
 
 /* Logo Header Fix */
