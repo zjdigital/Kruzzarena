@@ -1,0 +1,109 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&display=swap');
+
+:root {
+  font-family: 'Outfit', sans-serif !important;
+  --bg: #050b14;
+  --panel: rgba(10, 16, 42, 0.45);
+  --panel-strong: rgba(6, 10, 24, 0.65);
+  --line: rgba(129, 160, 255, 0.25);
+  --text: #ffffff;
+}
+
+body {
+  font-family: 'Outfit', sans-serif !important;
+  background:
+    radial-gradient(circle at 10% 20%, rgba(255, 42, 95, 0.15), transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(0, 210, 255, 0.15), transparent 40%),
+    linear-gradient(135deg, #050b14 0%, #0a1226 50%, #03060c 100%) !important;
+  background-attachment: fixed !important;
+}
+
+/* Glassmorphism for Cards */
+.match-card, .operator-card {
+  background: var(--panel) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.05) !important;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.match-card:hover, .operator-card:hover {
+  transform: translateY(-4px) !important;
+}
+
+/* Current Match styling */
+.current-match, .operator-current {
+  border: 2px solid currentColor !important;
+  border-radius: 16px !important;
+  background: rgba(0, 0, 0, 0.4) !important;
+  backdrop-filter: blur(8px) !important;
+  transition: all 0.3s ease !important;
+}
+
+.current-number, .operator-current strong {
+  letter-spacing: -2px !important;
+  text-shadow: 0 0 20px currentColor !important;
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+}
+
+/* Box Numbers styling */
+.box-number, .operator-box {
+  border-radius: 8px !important;
+  background: rgba(0, 0, 0, 0.3) !important;
+  transition: all 0.3s ease !important;
+}
+
+/* Highlight Animations */
+@keyframes highlight-flash {
+  0% { transform: scale(1); filter: brightness(1); }
+  30% { transform: scale(1.1); filter: brightness(2); text-shadow: 0 0 30px #fff; background: rgba(255,255,255,0.2) !important; }
+  100% { transform: scale(1); filter: brightness(1); }
+}
+
+.highlight {
+  animation: highlight-flash 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+  z-index: 10;
+  position: relative;
+}
+
+/* Fullscreen Button */
+.btn-fullscreen {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 50px;
+  height: 50px;
+  border-radius: 25px;
+  background: #2387ff;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 10px 20px rgba(0, 210, 255, 0.3);
+  opacity: 0.3;
+  transition: all 0.3s ease;
+  z-index: 1000;
+  font-size: 20px;
+  font-family: inherit;
+  font-weight: 900;
+}
+.btn-fullscreen:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+/* Fix title */
+.viewer-title, .login-title, .page-title {
+  font-family: 'Outfit', sans-serif !important;
+  letter-spacing: 0px !important;
+}
+
+/* Header */
+.viewer-header {
+  border-radius: 20px;
+  backdrop-filter: blur(12px);
+  background: linear-gradient(90deg, rgba(255, 45, 29, .2), rgba(35, 135, 255, .25)) !important;
+  border: 1px solid rgba(255,255,255,0.1) !important;
+}

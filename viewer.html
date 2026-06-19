@@ -6,6 +6,7 @@
     <title>KRUZZARENA Live Match Dashboard</title>
     <link rel="stylesheet" href="app.css?v=49" />
     <link rel="stylesheet" href="app.css?v=50" />
+    <link rel="stylesheet" href="app-premium.css" />
 
 <style>
   /* FIX PAKSA LOGO VIEWER */
@@ -83,6 +84,7 @@
         <span>Viewer Mode</span>
         <span id="clock">00.00.00</span>
       </footer>
+      <button class="btn-fullscreen" onclick="document.documentElement.requestFullscreen()" title="Fullscreen">⛶</button>
     </main>
 
     <script src="config.js"></script>
@@ -93,33 +95,55 @@
       const title = document.querySelector("#viewerTitle");
       const subtitle = document.querySelector("#viewerSubtitle");
       const clock = document.querySelector("#clock");
+      let previousState = null;
+      let audioCtx = null;
 
-      function renderBoxes(items, className, columns) {
-        return `<div class="number-row ${columns}">${items.map((item) => `
-          <div class="box-number ${className} ${item ? "" : "empty"}">${item || "-"}</div>
-        `).join("")}</div>`;
+      function playSound() {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, audioCtx.currentTime); // A5
+        osc.frequency.exponentialRampToValueAtTime(440, audioCtx.currentTime + 0.15);
+        gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+        osc.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.15);
       }
 
-      function renderArena(arenaData) {
+      function renderBoxes(items, oldItems, className, columns) {
+        return `<div class="number-row ${columns}">${items.map((item, i) => {
+          const isChanged = oldItems && oldItems[i] !== item;
+          return `<div class="box-number ${className} ${item ? "" : "empty"} ${isChanged ? 'highlight' : ''}">${item || "-"}</div>`;
+        }).join("")}</div>`;
+      }
+
+      function renderArena(arenaData, oldArena) {
         const arena = buildArenaView(arenaData);
+        const old = oldArena ? buildArenaView(oldArena) : null;
+        const currentChanged = old && old.current !== arena.current;
+
         return `
           <article class="match-card ${arena.color}">
             <header class="arena-head"><h2>${arena.name}</h2></header>
             <div class="current-match">
               <div>
                 <span class="current-label">Partai</span>
-                <span class="current-number">${arena.current || "-"}</span>
+                <span class="current-number ${currentChanged ? 'highlight' : ''}">${arena.current || "-"}</span>
               </div>
             </div>
 
             <h3 class="section-label">Masuk Area Pertandingan</h3>
-            ${renderBoxes(arena.area, "area", "cols-2")}
+            ${renderBoxes(arena.area, old?.area, "area", "cols-2")}
 
             <h3 class="section-label">Ruang Tunggu</h3>
-            ${renderBoxes(arena.waiting, "waiting", "cols-5")}
+            ${renderBoxes(arena.waiting, old?.waiting, "waiting", "cols-5")}
 
             <h3 class="section-label">Mohon Bersiap</h3>
-            ${renderBoxes(arena.ready, "ready", "cols-5")}
+            ${renderBoxes(arena.ready, old?.ready, "ready", "cols-5")}
           </article>
         `;
       }
@@ -127,13 +151,32 @@
       function render(state) {
         title.textContent = state.eventName;
         subtitle.textContent = state.subtitle;
-        grid.innerHTML = state.arenas.map(renderArena).join("");
+        
+        let shouldPlaySound = false;
+        if (previousState) {
+            state.arenas.forEach((arena, i) => {
+                const old = previousState.arenas[i];
+                if (old && old.current !== arena.current) {
+                    shouldPlaySound = true;
+                }
+            });
+        }
+        
+        if (shouldPlaySound) playSound();
+        grid.innerHTML = state.arenas.map((a, i) => renderArena(a, previousState?.arenas[i])).join("");
+        previousState = state;
       }
 
       function tick() {
         const now = new Date();
         clock.textContent = now.toLocaleTimeString("id-ID", { hour12: false }).replaceAll(":", ".");
       }
+
+      // Initialize audio on first user interaction for auto-play policies
+      document.body.addEventListener('click', () => {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+      }, { once: true });
 
       render(await loadState());
       await subscribeState(render);
