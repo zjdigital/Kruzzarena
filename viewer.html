@@ -32,28 +32,6 @@
     object-fit: contain !important;
   }
 
-  .viewer-header .viewer-logos img:nth-child(1) {
-    justify-self: start !important;
-    height: 58px !important;
-    max-width: 90px !important;
-  }
-
-  .viewer-header .viewer-logos img:nth-child(2) {
-    justify-self: center !important;
-    height: 48px !important;
-    max-width: 270px !important;
-  }
-
-  .viewer-header .viewer-logos img:nth-child(3) {
-    justify-self: end !important;
-    height: 58px !important;
-    max-width: 90px !important;
-  }
-
-  body.mobile-landscape-viewer .viewer-header .viewer-logos {
-    margin-bottom: 4px !important;
-  }
-
   body.mobile-landscape-viewer .viewer-header .viewer-logos img:nth-child(1),
   body.mobile-landscape-viewer .viewer-header .viewer-logos img:nth-child(3) {
     height: 24px !important;
@@ -130,9 +108,21 @@
           <article class="match-card ${arena.color}">
             <header class="arena-head"><h2>${arena.name}</h2></header>
             <div class="current-match">
-              <div>
+              <div class="match-info-top">
                 <span class="current-label">Partai</span>
                 <span class="current-number ${currentChanged ? 'highlight' : ''}">${arena.current || "-"}</span>
+              </div>
+              <div class="match-class" style="display: ${arena.matchClass ? 'inline-block' : 'none'}">${arena.matchClass || ""}</div>
+              <div class="athletes-battle" style="display: ${arena.athlete1 || arena.athlete2 ? 'flex' : 'none'}">
+                <div class="athlete red-corner">
+                   <div class="photo-box"></div>
+                   <div class="athlete-name">${arena.athlete1 || "-"}</div>
+                </div>
+                <div class="vs-badge">VS</div>
+                <div class="athlete blue-corner">
+                   <div class="photo-box"></div>
+                   <div class="athlete-name">${arena.athlete2 || "-"}</div>
+                </div>
               </div>
             </div>
 

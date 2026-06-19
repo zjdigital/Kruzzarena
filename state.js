@@ -17,7 +17,10 @@ export const makeArena = (name = "Lapangan Baru", color = "red", settings = {}) 
   totalMatches: settings.totalMatches ?? defaultArenaSettings.totalMatches,
   areaCount: settings.areaCount ?? defaultArenaSettings.areaCount,
   waitingCount: settings.waitingCount ?? defaultArenaSettings.waitingCount,
-  readyCount: settings.readyCount ?? defaultArenaSettings.readyCount
+  readyCount: settings.readyCount ?? defaultArenaSettings.readyCount,
+  athlete1: settings.athlete1 ?? "",
+  athlete2: settings.athlete2 ?? "",
+  matchClass: settings.matchClass ?? ""
 });
 
 export const defaultState = {
@@ -65,7 +68,10 @@ function cleanArena(arena = {}, index = 0) {
     totalMatches,
     areaCount: clampNumber(arena.areaCount ?? arena.area?.length, defaultArenaSettings.areaCount, 0, 20),
     waitingCount: clampNumber(arena.waitingCount ?? arena.waiting?.length, defaultArenaSettings.waitingCount, 0, 30),
-    readyCount: clampNumber(arena.readyCount ?? arena.ready?.length, defaultArenaSettings.readyCount, 0, 30)
+    readyCount: clampNumber(arena.readyCount ?? arena.ready?.length, defaultArenaSettings.readyCount, 0, 30),
+    athlete1: String(arena.athlete1 || "").trim(),
+    athlete2: String(arena.athlete2 || "").trim(),
+    matchClass: String(arena.matchClass || "").trim()
   };
 }
 

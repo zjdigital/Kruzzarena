@@ -33,22 +33,11 @@
     object-fit: contain !important;
   }
 
-  .admin-mini-header .viewer-logos img:nth-child(1) {
-    justify-self: start !important;
-    height: 58px !important;
-    max-width: 90px !important;
-  }
-
-  .admin-mini-header .viewer-logos img:nth-child(2) {
-    justify-self: center !important;
-    height: 48px !important;
-    max-width: 270px !important;
-  }
-
-  .admin-mini-header .viewer-logos img:nth-child(3) {
-    justify-self: end !important;
-    height: 58px !important;
-    max-width: 90px !important;
+  .admin-mini-header .viewer-logos img {
+    position: static !important;
+    transform: none !important;
+    display: block !important;
+    object-fit: contain !important;
   }
 
   @media (max-width: 680px) {
@@ -214,6 +203,20 @@
 
       function renderArenaCard(arenaData, arenaIndex) {
         const arena = buildArenaView(arenaData);
+        
+        const classOptions = [
+            "Super Pra Cadet ABC Putera",
+            "Junior Putera",
+            "Junior Puteri",
+            "Poomsae",
+            "Pra Cadet Puteri",
+            "Cadet Putera",
+            "Pra Cadet Putera",
+            "Super Pra Cadet ABC Puteri",
+            "Cadet Puteri"
+        ];
+        
+        const optionsHtml = classOptions.map(c => `<option value="${c}" ${arena.matchClass === c ? 'selected' : ''}>${c}</option>`).join('');
 
         return `
           <article class="operator-card ${arena.color}">
@@ -226,6 +229,20 @@
             <div class="operator-current">
               <span>Partai</span>
               <strong>${arena.current || "-"}</strong>
+            </div>
+
+            <div class="operator-athletes">
+              <label class="field"><span>Kelas Pertandingan</span>
+                <select class="arena-class-input" data-index="${arenaIndex}">
+                  <option value="" ${!arena.matchClass ? 'selected' : ''}>-- Pilih Kelas --</option>
+                  ${optionsHtml}
+                </select>
+              </label>
+              <div class="athlete-inputs">
+                <label class="field"><span>Sudut Merah (Nama)</span><input class="arena-athlete1-input" data-index="${arenaIndex}" value="${arena.athlete1 || ''}" placeholder="Nama Atlit 1" /></label>
+                <span class="vs-text">VS</span>
+                <label class="field"><span>Sudut Biru (Nama)</span><input class="arena-athlete2-input" data-index="${arenaIndex}" value="${arena.athlete2 || ''}" placeholder="Nama Atlit 2" /></label>
+              </div>
             </div>
 
             <div class="operator-section">
@@ -264,6 +281,24 @@
         });
         document.querySelectorAll(".next-arena-btn").forEach((button) => {
           button.addEventListener("click", () => moveArena(Number(button.dataset.index), 1));
+        });
+        
+        document.querySelectorAll(".arena-class-input, .arena-athlete1-input, .arena-athlete2-input").forEach((input) => {
+            input.addEventListener("change", async (e) => {
+                const index = Number(e.target.dataset.index);
+                const nextState = collectState();
+                
+                const card = e.target.closest('.operator-card');
+                nextState.arenas[index] = {
+                    ...nextState.arenas[index],
+                    matchClass: card.querySelector('.arena-class-input').value,
+                    athlete1: card.querySelector('.arena-athlete1-input').value,
+                    athlete2: card.querySelector('.arena-athlete2-input').value
+                };
+                
+                currentState = await saveState(nextState);
+                showToast("Data atlit disimpan.");
+            });
         });
       }
 
