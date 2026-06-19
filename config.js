@@ -8,4 +8,5 @@ window.KRUZZARENA_CONFIG = {
   storageBucket: "kruzzarena-new.firebasestorage.app",
   messagingSenderId: "1051455054327",
   appId: "1:1051455054327:web:405183796e304e0ea54ef2"
+  }
 };
