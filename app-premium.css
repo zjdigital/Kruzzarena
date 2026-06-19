@@ -94,41 +94,21 @@ body {
   transform: scale(1.1);
 }
 
-/* Fix title */
+/* Fix title font */
 .viewer-title, .login-title, .page-title {
   font-family: 'Outfit', sans-serif !important;
   letter-spacing: 0px !important;
 }
 
-/* Header & Layout Full Width Fix */
-.viewer-header, .viewer-grid, .viewer-footer {
-  width: 98% !important;
-  max-width: 1900px !important;
-}
-
+/* Viewer header premium style */
 .viewer-header {
-  border-radius: 20px;
-  backdrop-filter: blur(12px);
+  border-radius: 20px !important;
+  backdrop-filter: blur(12px) !important;
   background: linear-gradient(90deg, rgba(255, 45, 29, .2), rgba(35, 135, 255, .25)) !important;
   border: 1px solid rgba(255,255,255,0.1) !important;
-  padding-left: 50px !important;
-  padding-right: 50px !important;
 }
 
-/* Logo Header Fix */
-.viewer-logos {
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  width: 100% !important;
-  padding-top: 15px !important;
-}
-.viewer-logos img {
-  position: static !important;
-  transform: none !important;
-}
-
-/* Match Class */
+/* Match Class badge */
 .match-class {
   background: rgba(0, 0, 0, 0.5);
   border-radius: 8px;
@@ -143,7 +123,7 @@ body {
   border: 1px solid rgba(255, 215, 0, 0.3);
 }
 
-/* Athletes Battle */
+/* Athletes Battle - Viewer */
 .athletes-battle {
   display: flex;
   justify-content: center;
@@ -152,13 +132,16 @@ body {
   width: 100%;
   padding: 6px 12px 14px;
 }
+
 .athlete {
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 6px;
 }
+
 .photo-box {
   width: 64px;
   height: 64px;
@@ -167,12 +150,15 @@ body {
   border: 2px dashed rgba(255,255,255,0.3);
   display: grid;
   place-items: center;
+  flex-shrink: 0;
 }
+
 .photo-box::after {
   content: '👤';
   font-size: 28px;
   opacity: 0.5;
 }
+
 .athlete-name {
   font-size: 18px;
   font-weight: 900;
@@ -180,17 +166,24 @@ body {
   line-height: 1.1;
   text-shadow: 0 0 10px rgba(0,0,0,0.8);
   min-height: 40px;
+  width: 100%;
+  word-wrap: break-word;
 }
-.red-corner .athlete-name, .red-corner .photo-box {
+
+.red-corner .athlete-name,
+.red-corner .photo-box {
   color: #ff2a5f;
   border-color: #ff2a5f;
   text-shadow: 0 0 10px rgba(255,42,95,0.5);
 }
-.blue-corner .athlete-name, .blue-corner .photo-box {
+
+.blue-corner .athlete-name,
+.blue-corner .photo-box {
   color: #00d2ff;
   border-color: #00d2ff;
   text-shadow: 0 0 10px rgba(0,210,255,0.5);
 }
+
 .vs-badge {
   font-size: 20px;
   font-weight: 900;
@@ -198,6 +191,7 @@ body {
   background: rgba(255,255,255,0.15);
   width: 36px;
   height: 36px;
+  flex-shrink: 0;
   border-radius: 50%;
   display: grid;
   place-items: center;
@@ -206,27 +200,100 @@ body {
   border: 1px solid rgba(255,255,255,0.2);
 }
 
-/* Admin Arena Inputs */
+/* Admin Arena Athlete Inputs */
 .athlete-inputs {
   display: flex;
   gap: 10px;
   margin-top: 10px;
   align-items: center;
 }
+
 .athlete-inputs .field {
   flex: 1;
 }
+
 .athlete-inputs .vs-text {
   font-weight: 900;
   font-size: 14px;
   color: rgba(255,255,255,0.5);
   margin-top: 18px;
 }
+
 .operator-athletes {
   padding: 0 14px 14px;
   width: 100%;
 }
-.operator-athletes .field select, .operator-athletes .field input {
+
+.operator-athletes .field select,
+.operator-athletes .field input {
   min-height: 38px;
   font-size: 14px;
+}
+
+/* Mobile portrait - athlete layout compact */
+@media (max-width: 680px) {
+  .athletes-battle {
+    gap: 8px;
+    padding: 4px 8px 10px;
+  }
+
+  .photo-box {
+    width: 48px;
+    height: 48px;
+  }
+
+  .photo-box::after {
+    font-size: 22px;
+  }
+
+  .athlete-name {
+    font-size: 14px;
+    min-height: 30px;
+  }
+
+  .match-class {
+    font-size: 12px;
+    padding: 3px 8px;
+    letter-spacing: 1px;
+  }
+
+  .vs-badge {
+    width: 28px;
+    height: 28px;
+    font-size: 14px;
+  }
+}
+
+/* Mobile landscape - athlete layout very compact */
+body.mobile-landscape-viewer .athletes-battle {
+  gap: 4px;
+  padding: 2px 4px 6px;
+}
+
+body.mobile-landscape-viewer .photo-box {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+}
+
+body.mobile-landscape-viewer .photo-box::after {
+  font-size: 14px;
+}
+
+body.mobile-landscape-viewer .athlete-name {
+  font-size: 10px;
+  min-height: 20px;
+}
+
+body.mobile-landscape-viewer .vs-badge {
+  width: 22px;
+  height: 22px;
+  font-size: 10px;
+}
+
+body.mobile-landscape-viewer .match-class {
+  font-size: 9px;
+  padding: 2px 6px;
+  letter-spacing: .5px;
+  margin: 2px auto;
 }
