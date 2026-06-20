@@ -72,7 +72,8 @@ function cleanArena(arena = {}, index = 0) {
     readyCount: clampNumber(arena.readyCount ?? arena.ready?.length, defaultArenaSettings.readyCount, 0, 30),
     athlete1: String(arena.athlete1 || "").trim(),
     athlete2: String(arena.athlete2 || "").trim(),
-    matchClass: String(arena.matchClass || "").trim()
+    matchClass: String(arena.matchClass || "").trim(),
+    matches: arena.matches || {}
   };
 }
 

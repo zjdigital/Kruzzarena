@@ -57,8 +57,9 @@
         osc.stop(audioCtx.currentTime + 0.15);
       }
 
-      function getMatchTooltip(matchNumber) {
-        const matches = currentMatches || window.KRUZZARENA_MATCHES || {};
+      function getMatchTooltip(matchNumber, arenaIndex) {
+        const arena = previousState?.arenas[arenaIndex];
+        const matches = arena?.matches || currentMatches || window.KRUZZARENA_MATCHES || {};
         if (matchNumber) {
           const match = matches[String(matchNumber)];
           if (match) {
@@ -68,15 +69,15 @@
         return `Partai ${matchNumber}`;
       }
 
-      function renderBoxes(items, oldItems, className, columns) {
+      function renderBoxes(items, oldItems, className, columns, arenaIndex) {
         return `<div class="number-row ${columns}">${items.map((item, i) => {
           const isChanged = oldItems && oldItems[i] !== item;
-          const tooltip = item ? getMatchTooltip(item) : "";
+          const tooltip = item ? getMatchTooltip(item, arenaIndex) : "";
           return `<div class="box-number ${className} ${item ? "" : "empty"} ${isChanged ? 'highlight' : ''}" ${item ? `title="${tooltip}"` : ''}>${item || "-"}</div>`;
         }).join("")}</div>`;
       }
 
-      function renderArena(arenaData, oldArena) {
+      function renderArena(arenaData, oldArena, arenaIndex) {
         const arena = buildArenaView(arenaData);
         const old = oldArena ? buildArenaView(oldArena) : null;
         const currentChanged = old && old.current !== arena.current;
@@ -104,13 +105,13 @@
             </div>
 
             <h3 class="section-label">Masuk Area Pertandingan</h3>
-            ${renderBoxes(arena.area, old?.area, "area", "cols-2")}
+            ${renderBoxes(arena.area, old?.area, "area", "cols-2", arenaIndex)}
 
             <h3 class="section-label">Ruang Tunggu</h3>
-            ${renderBoxes(arena.waiting, old?.waiting, "waiting", "cols-5")}
+            ${renderBoxes(arena.waiting, old?.waiting, "waiting", "cols-5", arenaIndex)}
 
             <h3 class="section-label">Mohon Bersiap</h3>
-            ${renderBoxes(arena.ready, old?.ready, "ready", "cols-5")}
+            ${renderBoxes(arena.ready, old?.ready, "ready", "cols-5", arenaIndex)}
           </article>
         `;
       }
@@ -131,7 +132,7 @@
         }
         
         if (shouldPlaySound) playSound();
-        grid.innerHTML = state.arenas.map((a, i) => renderArena(a, previousState?.arenas[i])).join("");
+        grid.innerHTML = state.arenas.map((a, i) => renderArena(a, previousState?.arenas[i], i)).join("");
         previousState = state;
       }
 

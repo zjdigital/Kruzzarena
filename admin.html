@@ -13,7 +13,6 @@
         <div class="brand"><i class="brand-mark"></i>KRUZZ<span>ARENA</span> - Admin Panel</div>
         <div class="top-actions">
           <button id="addArenaBtn" class="button" type="button">+ Lapangan</button>
-          <button id="importExcelBtn" class="button secondary" type="button">📥 Import Excel/CSV</button>
           <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv" style="display: none;" />
           <a class="button secondary" href="viewer.html" target="_blank">Lihat Live</a>
           <button id="logoutBtn" class="button secondary" type="button">Keluar</button>
@@ -154,8 +153,9 @@
         };
       }
 
-      function getMatchTooltip(matchNumber) {
-        const matches = currentState?.matches || window.KRUZZARENA_MATCHES || {};
+      function getMatchTooltip(matchNumber, arenaIndex) {
+        const arena = currentState?.arenas[arenaIndex];
+        const matches = arena?.matches || window.KRUZZARENA_MATCHES || {};
         if (matchNumber) {
           const match = matches[String(matchNumber)];
           if (match) {
@@ -165,15 +165,15 @@
         return `Partai ${matchNumber}`;
       }
 
-      function renderBoxes(items, className, columns) {
+      function renderBoxes(items, className, columns, arenaIndex) {
         return `<div class="operator-row ${columns} ${className}">${items.map((item) => {
-          const tooltip = item ? getMatchTooltip(item) : "";
+          const tooltip = item ? getMatchTooltip(item, arenaIndex) : "";
           return `<div class="operator-box ${className} ${item ? "" : "empty"}" ${item ? `title="${tooltip}"` : ''}>${item || "-"}</div>`;
         }).join("")}</div>`;
       }
 
       function updateArenaDetailsFromDb(arena) {
-        const matches = currentState?.matches || window.KRUZZARENA_MATCHES || {};
+        const matches = arena.matches || window.KRUZZARENA_MATCHES || {};
         if (arena.current) {
           const match = matches[String(arena.current)];
           if (match) {
@@ -196,7 +196,10 @@
             <header class="operator-head">
               <h2>${arena.name}</h2>
               <p class="operator-total">Total Partai: <strong>${arena.totalMatches}</strong></p>
-              <button class="icon-button edit-arena-btn" type="button" data-index="${arenaIndex}" title="Edit lapangan">⚙</button>
+              <div class="operator-head-actions" style="display: flex; gap: 8px;">
+                <button class="icon-button import-arena-excel-btn" type="button" data-index="${arenaIndex}" title="Import Excel/CSV lapangan ini">📥</button>
+                <button class="icon-button edit-arena-btn" type="button" data-index="${arenaIndex}" title="Edit lapangan">⚙</button>
+              </div>
             </header>
 
             <div class="operator-current">
@@ -230,17 +233,17 @@
 
             <div class="operator-section">
               <h3>Masuk Area Pertandingan</h3>
-              ${renderBoxes(arena.area, "area", "two")}
+              ${renderBoxes(arena.area, "area", "two", arenaIndex)}
             </div>
 
             <div class="operator-section">
               <h3>Ruang Tunggu</h3>
-              ${renderBoxes(arena.waiting, "waiting", "auto")}
+              ${renderBoxes(arena.waiting, "waiting", "auto", arenaIndex)}
             </div>
 
             <div class="operator-section">
               <h3>Mohon Bersiap</h3>
-              ${renderBoxes(arena.ready, "ready", "auto")}
+              ${renderBoxes(arena.ready, "ready", "auto", arenaIndex)}
             </div>
 
             <div class="operator-actions">
@@ -258,6 +261,12 @@
 
         document.querySelectorAll(".edit-arena-btn").forEach((button) => {
           button.addEventListener("click", () => openArenaModal(Number(button.dataset.index)));
+        });
+        document.querySelectorAll(".import-arena-excel-btn").forEach((button) => {
+          button.addEventListener("click", () => {
+            activeImportArenaIndex = Number(button.dataset.index);
+            excelFileInput.click();
+          });
         });
         document.querySelectorAll(".back-arena-btn").forEach((button) => {
           button.addEventListener("click", () => moveArena(Number(button.dataset.index), -1));
@@ -452,14 +461,12 @@
       });
 
       // Excel/CSV Import Logic
-      const importExcelBtn = document.querySelector("#importExcelBtn");
+      let activeImportArenaIndex = null;
       const excelFileInput = document.querySelector("#excelFileInput");
-
-      importExcelBtn.addEventListener("click", () => excelFileInput.click());
 
       excelFileInput.addEventListener("change", (e) => {
         const file = e.target.files[0];
-        if (!file) return;
+        if (!file || activeImportArenaIndex === null) return;
 
         const reader = new FileReader();
         reader.onload = async (evt) => {
@@ -511,29 +518,30 @@
               return;
             }
 
-            // Simpan ke State
+            // Simpan ke State pada arena aktif
             const nextState = collectState();
-            nextState.matches = importedMatches;
+            const arena = nextState.arenas[activeImportArenaIndex];
+            arena.matches = importedMatches;
 
-            // Untuk setiap arena, perbarui data atlet untuk nomor partai aktif saat ini dari database yang baru diimpor
-            nextState.arenas.forEach(arena => {
-              if (arena.current) {
-                const match = importedMatches[String(arena.current)];
-                if (match) {
-                  arena.athlete1 = match.athlete1 || "";
-                  arena.athlete2 = match.athlete2 || "";
-                  arena.matchClass = match.matchClass || "";
-                }
+            // Perbarui data atlet saat ini dari database yang diimpor
+            if (arena.current) {
+              const match = importedMatches[String(arena.current)];
+              if (match) {
+                arena.athlete1 = match.athlete1 || "";
+                arena.athlete2 = match.athlete2 || "";
+                arena.matchClass = match.matchClass || "";
               }
-            });
+            }
 
             currentState = await saveState(nextState);
             renderEditors(currentState);
-            showToast(`Berhasil mengimpor ${count} partai dari Excel!`);
+            showToast(`Berhasil mengimpor ${count} partai di ${arena.name}!`);
             excelFileInput.value = ""; // reset input
+            activeImportArenaIndex = null;
           } catch (err) {
             console.error(err);
             alert("Gagal membaca file Excel. Pastikan format file benar.");
+            activeImportArenaIndex = null;
           }
         };
         reader.readAsBinaryString(file);
