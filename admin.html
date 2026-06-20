@@ -13,6 +13,8 @@
         <div class="brand"><i class="brand-mark"></i>KRUZZ<span>ARENA</span> - Admin Panel</div>
         <div class="top-actions">
           <button id="addArenaBtn" class="button" type="button">+ Lapangan</button>
+          <button id="importExcelBtn" class="button secondary" type="button">📥 Import Excel/CSV</button>
+          <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv" style="display: none;" />
           <a class="button secondary" href="viewer.html" target="_blank">Lihat Live</a>
           <button id="logoutBtn" class="button secondary" type="button">Keluar</button>
         </div>
@@ -109,7 +111,11 @@
       <div id="toast" class="toast">Data berhasil disimpan ke viewer.</div>
     </main>
 
+
+
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="config.js"></script>
+    <script src="matches.js"></script>
     <script type="module">
       import { buildArenaView, defaultArenaSettings, loadState, makeArena, saveState } from "./state.js";
 
@@ -148,28 +154,42 @@
         };
       }
 
+      function getMatchTooltip(matchNumber) {
+        const matches = currentState?.matches || window.KRUZZARENA_MATCHES || {};
+        if (matchNumber) {
+          const match = matches[String(matchNumber)];
+          if (match) {
+            return `Partai ${matchNumber}: ${match.athlete1 || '-'} VS ${match.athlete2 || '-'} (${match.matchClass || '-'})`;
+          }
+        }
+        return `Partai ${matchNumber}`;
+      }
+
       function renderBoxes(items, className, columns) {
-        return `<div class="operator-row ${columns} ${className}">${items.map((item) => `
-          <div class="operator-box ${className} ${item ? "" : "empty"}">${item || "-"}</div>
-        `).join("")}</div>`;
+        return `<div class="operator-row ${columns} ${className}">${items.map((item) => {
+          const tooltip = item ? getMatchTooltip(item) : "";
+          return `<div class="operator-box ${className} ${item ? "" : "empty"}" ${item ? `title="${tooltip}"` : ''}>${item || "-"}</div>`;
+        }).join("")}</div>`;
+      }
+
+      function updateArenaDetailsFromDb(arena) {
+        const matches = currentState?.matches || window.KRUZZARENA_MATCHES || {};
+        if (arena.current) {
+          const match = matches[String(arena.current)];
+          if (match) {
+            arena.athlete1 = match.athlete1 || "";
+            arena.athlete2 = match.athlete2 || "";
+            arena.matchClass = match.matchClass || "";
+          } else {
+            arena.athlete1 = "";
+            arena.athlete2 = "";
+            arena.matchClass = "";
+          }
+        }
       }
 
       function renderArenaCard(arenaData, arenaIndex) {
         const arena = buildArenaView(arenaData);
-        
-        const classOptions = [
-            "Super Pra Cadet ABC Putera",
-            "Junior Putera",
-            "Junior Puteri",
-            "Poomsae",
-            "Pra Cadet Puteri",
-            "Cadet Putera",
-            "Pra Cadet Putera",
-            "Super Pra Cadet ABC Puteri",
-            "Cadet Puteri"
-        ];
-        
-        const optionsHtml = classOptions.map(c => `<option value="${c}" ${arena.matchClass === c ? 'selected' : ''}>${c}</option>`).join('');
 
         return `
           <article class="operator-card ${arena.color}">
@@ -186,10 +206,20 @@
 
             <div class="operator-athletes">
               <label class="field"><span>Kelas Pertandingan</span>
-                <select class="arena-class-input" data-index="${arenaIndex}">
-                  <option value="" ${!arena.matchClass ? 'selected' : ''}>-- Pilih Kelas --</option>
-                  ${optionsHtml}
-                </select>
+                <div class="custom-select-wrapper">
+                  <input class="arena-class-input" type="text" data-index="${arenaIndex}" value="${arena.matchClass || ''}" placeholder="Ketik atau pilih kelas..." autocomplete="off" />
+                  <div class="custom-select-options">
+                    <div class="custom-select-option" data-value="Super Pra Cadet ABC Putera">Super Pra Cadet ABC Putera</div>
+                    <div class="custom-select-option" data-value="Junior Putera">Junior Putera</div>
+                    <div class="custom-select-option" data-value="Junior Puteri">Junior Puteri</div>
+                    <div class="custom-select-option" data-value="Poomsae">Poomsae</div>
+                    <div class="custom-select-option" data-value="Pra Cadet Puteri">Pra Cadet Puteri</div>
+                    <div class="custom-select-option" data-value="Cadet Putera">Cadet Putera</div>
+                    <div class="custom-select-option" data-value="Pra Cadet Putera">Pra Cadet Putera</div>
+                    <div class="custom-select-option" data-value="Super Pra Cadet ABC Puteri">Super Pra Cadet ABC Puteri</div>
+                    <div class="custom-select-option" data-value="Cadet Puteri">Cadet Puteri</div>
+                  </div>
+                </div>
               </label>
               <div class="athlete-inputs">
                 <label class="field"><span>Sudut Merah (Nama)</span><input class="arena-athlete1-input" data-index="${arenaIndex}" value="${arena.athlete1 || ''}" placeholder="Nama Atlit 1" /></label>
@@ -253,6 +283,38 @@
                 showToast("Data atlit disimpan.");
             });
         });
+
+        // Custom Select Logic
+        document.querySelectorAll(".custom-select-wrapper").forEach((wrapper) => {
+          const input = wrapper.querySelector(".arena-class-input");
+          const optionsList = wrapper.querySelector(".custom-select-options");
+          const options = wrapper.querySelectorAll(".custom-select-option");
+
+          input.addEventListener("focus", () => {
+            // Tutup semua select wrapper lain dulu
+            document.querySelectorAll(".custom-select-wrapper").forEach(w => {
+              if (w !== wrapper) w.classList.remove("open");
+            });
+            wrapper.classList.add("open");
+          });
+
+          // Menggunakan timeout agar click pada opsi terdaftar sebelum menu ditutup
+          input.addEventListener("blur", () => {
+            setTimeout(() => {
+              wrapper.classList.remove("open");
+            }, 200);
+          });
+
+          options.forEach(opt => {
+            opt.addEventListener("click", async () => {
+              input.value = opt.dataset.value;
+              wrapper.classList.remove("open");
+              
+              // Memicu event change manual agar disimpan ke state/Firebase
+              input.dispatchEvent(new Event("change"));
+            });
+          });
+        });
       }
 
       async function moveArena(arenaIndex, direction) {
@@ -267,6 +329,8 @@
           ...arena,
           current: nextCurrent
         };
+
+        updateArenaDetailsFromDb(nextState.arenas[arenaIndex]);
 
         currentState = await saveState(nextState);
         renderEditors(currentState);
@@ -313,11 +377,13 @@
         const baseState = collectState();
         const nextNumber = baseState.arenas.length + 1;
         const colors = ["red", "blue", "green"];
+        const newArena = makeArena(`Lapangan ${String.fromCharCode(64 + nextNumber)}`, colors[(nextNumber - 1) % colors.length]);
+        updateArenaDetailsFromDb(newArena);
         currentState = await saveState({
           ...baseState,
           arenas: [
             ...baseState.arenas,
-            makeArena(`Lapangan ${String.fromCharCode(64 + nextNumber)}`, colors[(nextNumber - 1) % colors.length])
+            newArena
           ]
         });
         renderEditors(currentState);
@@ -340,6 +406,8 @@
           waitingCount: numberValue(modalArenaWaitingCount.value, defaultArenaSettings.waitingCount, 0, 30),
           readyCount: numberValue(modalArenaReadyCount.value, defaultArenaSettings.readyCount, 0, 30)
         };
+
+        updateArenaDetailsFromDb(nextState.arenas[activeArenaIndex]);
 
         currentState = await saveState(nextState);
         renderEditors(currentState);
@@ -381,6 +449,94 @@
       document.querySelector("#logoutBtn").addEventListener("click", () => {
         sessionStorage.removeItem("kruzzarena-admin");
         window.location.href = "index.html";
+      });
+
+      // Excel/CSV Import Logic
+      const importExcelBtn = document.querySelector("#importExcelBtn");
+      const excelFileInput = document.querySelector("#excelFileInput");
+
+      importExcelBtn.addEventListener("click", () => excelFileInput.click());
+
+      excelFileInput.addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = async (evt) => {
+          try {
+            const data = evt.target.result;
+            const workbook = XLSX.read(data, { type: 'binary' });
+            const firstSheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[firstSheetName];
+            const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+            if (!rows || rows.length < 2) {
+              alert("File Excel kosong atau tidak memiliki baris data yang cukup.");
+              return;
+            }
+
+            const headers = rows[0].map(h => String(h || "").toLowerCase().trim());
+            
+            let matchIdx = headers.findIndex(h => h.includes("partai") || h.includes("no") || h.includes("match"));
+            let redIdx = headers.findIndex(h => h.includes("merah") || h.includes("red") || h.includes("athlete1") || h.includes("atlit1") || h.includes("atlit 1"));
+            let blueIdx = headers.findIndex(h => h.includes("biru") || h.includes("blue") || h.includes("athlete2") || h.includes("atlit2") || h.includes("atlit 2"));
+            let classIdx = headers.findIndex(h => h.includes("kelas") || h.includes("class") || h.includes("kategori") || h.includes("category"));
+
+            // Fallback jika header tidak cocok
+            if (matchIdx === -1) matchIdx = 0;
+            if (redIdx === -1) redIdx = 1;
+            if (blueIdx === -1) blueIdx = 2;
+            if (classIdx === -1) classIdx = 3;
+
+            const importedMatches = {};
+            let count = 0;
+
+            for (let i = 1; i < rows.length; i++) {
+              const row = rows[i];
+              if (!row || row.length === 0) continue;
+
+              const partaiNum = parseInt(row[matchIdx]);
+              if (isNaN(partaiNum)) continue;
+
+              importedMatches[String(partaiNum)] = {
+                athlete1: String(row[redIdx] || "").trim(),
+                athlete2: String(row[blueIdx] || "").trim(),
+                matchClass: String(row[classIdx] || "").trim()
+              };
+              count++;
+            }
+
+            if (count === 0) {
+              alert("Tidak ada data partai valid yang berhasil dibaca. Pastikan kolom nomor partai berisi angka.");
+              return;
+            }
+
+            // Simpan ke State
+            const nextState = collectState();
+            nextState.matches = importedMatches;
+
+            // Untuk setiap arena, perbarui data atlet untuk nomor partai aktif saat ini dari database yang baru diimpor
+            nextState.arenas.forEach(arena => {
+              if (arena.current) {
+                const match = importedMatches[String(arena.current)];
+                if (match) {
+                  arena.athlete1 = match.athlete1 || "";
+                  arena.athlete2 = match.athlete2 || "";
+                  arena.matchClass = match.matchClass || "";
+                }
+              }
+            });
+
+            currentState = await saveState(nextState);
+            renderEditors(currentState);
+            showToast(`Berhasil mengimpor ${count} partai dari Excel!`);
+            excelFileInput.value = ""; // reset input
+          } catch (err) {
+            console.error(err);
+            alert("Gagal membaca file Excel. Pastikan format file benar.");
+          }
+        };
+        reader.readAsBinaryString(file);
       });
 
       renderEditors(currentState);

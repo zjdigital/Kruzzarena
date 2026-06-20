@@ -29,6 +29,7 @@
     </main>
 
     <script src="config.js"></script>
+    <script src="matches.js"></script>
     <script type="module">
       import { loadState, subscribeState, buildArenaView } from "./state.js";
 
@@ -38,6 +39,7 @@
       const clock = document.querySelector("#clock");
       let previousState = null;
       let audioCtx = null;
+      let currentMatches = {};
 
       function playSound() {
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -55,10 +57,22 @@
         osc.stop(audioCtx.currentTime + 0.15);
       }
 
+      function getMatchTooltip(matchNumber) {
+        const matches = currentMatches || window.KRUZZARENA_MATCHES || {};
+        if (matchNumber) {
+          const match = matches[String(matchNumber)];
+          if (match) {
+            return `Partai ${matchNumber}: ${match.athlete1 || '-'} VS ${match.athlete2 || '-'} (${match.matchClass || '-'})`;
+          }
+        }
+        return `Partai ${matchNumber}`;
+      }
+
       function renderBoxes(items, oldItems, className, columns) {
         return `<div class="number-row ${columns}">${items.map((item, i) => {
           const isChanged = oldItems && oldItems[i] !== item;
-          return `<div class="box-number ${className} ${item ? "" : "empty"} ${isChanged ? 'highlight' : ''}">${item || "-"}</div>`;
+          const tooltip = item ? getMatchTooltip(item) : "";
+          return `<div class="box-number ${className} ${item ? "" : "empty"} ${isChanged ? 'highlight' : ''}" ${item ? `title="${tooltip}"` : ''}>${item || "-"}</div>`;
         }).join("")}</div>`;
       }
 
@@ -104,6 +118,7 @@
       function render(state) {
         title.textContent = state.eventName;
         subtitle.textContent = state.subtitle;
+        currentMatches = state.matches || {};
         
         let shouldPlaySound = false;
         if (previousState) {

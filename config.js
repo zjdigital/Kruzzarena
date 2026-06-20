@@ -1,5 +1,5 @@
 window.KRUZZARENA_CONFIG = {
-  adminPassword: "kruzz2026",
+  adminPassword: "12345",
 
   firebase: {
     apiKey: "AIzaSyCl1vvPss3owaHeIXj5hYSkYxsiED40thI",
@@ -11,3 +11,4 @@ window.KRUZZARENA_CONFIG = {
     appId: "1:1051455054327:web:405183796e304e0ea54ef2"
   }
 };
+

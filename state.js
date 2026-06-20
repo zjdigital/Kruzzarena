@@ -31,7 +31,8 @@ export const defaultState = {
     makeArena("Lapangan A", "red", { current: 1, totalMatches: 120, areaCount: 2, waitingCount: 5, readyCount: 10 }),
     makeArena("Lapangan B", "blue", { current: 10, totalMatches: 120, areaCount: 2, waitingCount: 5, readyCount: 10 }),
     makeArena("Lapangan C", "green", { current: 4, totalMatches: 120, areaCount: 2, waitingCount: 5, readyCount: 10 })
-  ]
+  ],
+  matches: {}
 };
 
 let dbApiPromise = null;
@@ -81,6 +82,7 @@ function cleanState(state) {
   next.subtitle = String(next.subtitle || defaultState.subtitle).trim();
   next.updatedAt = new Date().toISOString();
   next.arenas = (next.arenas?.length ? next.arenas : defaultState.arenas).map(cleanArena);
+  next.matches = state?.matches || {};
   return next;
 }
 
