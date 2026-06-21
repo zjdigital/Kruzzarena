@@ -73,6 +73,8 @@ function cleanArena(arena = {}, index = 0) {
     athlete1: String(arena.athlete1 || "").trim(),
     athlete2: String(arena.athlete2 || "").trim(),
     matchClass: String(arena.matchClass || "").trim(),
+    athlete1Photo: String(arena.athlete1Photo || "").trim(),
+    athlete2Photo: String(arena.athlete2Photo || "").trim(),
     matches: arena.matches || {}
   };
 }

@@ -57,6 +57,28 @@
         osc.stop(audioCtx.currentTime + 0.15);
       }
 
+      function getPhotoUrl(name, customPhotoUrl) {
+        if (customPhotoUrl && customPhotoUrl.trim() !== "") {
+          return customPhotoUrl.trim();
+        }
+        if (!name || name.trim() === "" || name === "-") {
+          return "";
+        }
+        const sanitized = name.toLowerCase().trim().replace(/[^a-z0-9]/g, "_");
+        return `photos/${sanitized}.png`;
+      }
+
+      function getPhotoUrlJpg(name, customPhotoUrl) {
+        if (customPhotoUrl && customPhotoUrl.trim() !== "") {
+          return customPhotoUrl.trim();
+        }
+        if (!name || name.trim() === "" || name === "-") {
+          return "";
+        }
+        const sanitized = name.toLowerCase().trim().replace(/[^a-z0-9]/g, "_");
+        return `photos/${sanitized}.jpg`;
+      }
+
       function getMatchTooltip(matchNumber, arenaIndex) {
         const arena = previousState?.arenas[arenaIndex];
         const matches = arena?.matches || currentMatches || window.KRUZZARENA_MATCHES || {};
@@ -93,12 +115,16 @@
               <div class="match-class" style="display: ${arena.matchClass ? 'inline-block' : 'none'}">${arena.matchClass || ""}</div>
               <div class="athletes-battle" style="display: ${arena.athlete1 || arena.athlete2 ? 'flex' : 'none'}">
                 <div class="athlete red-corner">
-                   <div class="photo-box"></div>
+                   <div class="photo-box">
+                     <img src="${getPhotoUrl(arena.athlete1, arena.athlete1Photo)}" onerror="this.onerror=null; this.src='${getPhotoUrlJpg(arena.athlete1, arena.athlete1Photo)}'; this.onerror=()=>this.style.opacity=0;" onload="this.style.opacity=1;" />
+                   </div>
                    <div class="athlete-name">${arena.athlete1 || "-"}</div>
                 </div>
                 <div class="vs-badge">VS</div>
                 <div class="athlete blue-corner">
-                   <div class="photo-box"></div>
+                   <div class="photo-box">
+                     <img src="${getPhotoUrl(arena.athlete2, arena.athlete2Photo)}" onerror="this.onerror=null; this.src='${getPhotoUrlJpg(arena.athlete2, arena.athlete2Photo)}'; this.onerror=()=>this.style.opacity=0;" onload="this.style.opacity=1;" />
+                   </div>
                    <div class="athlete-name">${arena.athlete2 || "-"}</div>
                 </div>
               </div>
