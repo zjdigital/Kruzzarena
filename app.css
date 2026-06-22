@@ -261,7 +261,7 @@ select {
 /* Logo kiri (medali) - rata kiri */
 .viewer-logos > img:nth-child(1) {
   justify-self: start;
-   margin-left: 30px;
+   margin-left: 40px;
   height: 58px;
   width: auto;
   max-width: 90px;
@@ -278,7 +278,7 @@ select {
 /* Logo kanan (bandae) - rata kanan */
 .viewer-logos > img:nth-child(3) {
   justify-self: end;
-   margin-right: 30px; 
+   margin-right: 40px; 
   height: 58px;
   width: auto;
   max-width: 90px;
