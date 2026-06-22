@@ -269,6 +269,7 @@ select {
 /* Logo tengah (KRUZZARENA panjang) - rata tengah */
 .viewer-logos > img:nth-child(2) {
   justify-self: center;
+   margin-left: 25px;
   height: 48px;
   width: auto;
   max-width: 280px;
@@ -277,6 +278,7 @@ select {
 /* Logo kanan (bandae) - rata kanan */
 .viewer-logos > img:nth-child(3) {
   justify-self: end;
+   margin-right: 25px; 
   height: 58px;
   width: auto;
   max-width: 90px;
