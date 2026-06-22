@@ -243,7 +243,7 @@ select {
 /* Grid 3 kolom: logo kiri | logo tengah | logo kanan */
 .viewer-logos {
   display: grid;
-  grid-template-columns: 140px auto 140px;
+  grid-template-columns: 180px auto 1800px;
   align-items: center;
   width: 100%;
   gap: 12px;
