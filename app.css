@@ -240,47 +240,48 @@ select {
   box-shadow: inset 0 0 40px rgba(255, 255, 255, .04), 0 18px 60px rgba(0, 0, 0, .35);
 }
 
-/* Grid 3 kolom: logo kiri | logo tengah | logo kanan */
+/* =============================================
+   LOGO HEADER — 3 kolom simetris
+   [kiri fixed] [tengah fleksibel] [kanan fixed]
+   Kiri & kanan lebar SAMA → Kruzzarena selalu center
+   ============================================= */
 .viewer-logos {
   display: grid;
-  grid-template-columns: 180px auto 1800px;
+  grid-template-columns: 120px 1fr 120px;
   align-items: center;
   width: 100%;
   gap: 12px;
   margin-bottom: 14px;
   padding: 0;
 }
+
 .viewer-logos > img {
   display: block;
   object-fit: contain;
-  position: static;
-  transform: none;
 }
 
-/* Logo kiri (medali) - rata kiri */
+/* Logo kiri (medali) — rata kiri dalam kolomnya */
 .viewer-logos > img:nth-child(1) {
+  height: 64px;
+  width: auto;
+  max-width: 110px;
   justify-self: start;
-  margin-left: 50px !important;
-  height: 58px;
-  width: auto;
-  max-width: 90px;
 }
 
-/* Logo tengah (KRUZZARENA panjang) - rata tengah */
+/* Logo tengah (KRUZZARENA) — selalu center */
 .viewer-logos > img:nth-child(2) {
-  justify-self: center;
-  height: 48px;
+  height: 52px;
   width: auto;
-  max-width: 280px;
+  max-width: 100%;
+  justify-self: center;
 }
 
-/* Logo kanan (bandae) - rata kanan */
+/* Logo kanan (Bandae) — rata kanan dalam kolomnya */
 .viewer-logos > img:nth-child(3) {
-  justify-self: end;
-  margin-right: 50px !important;
-  height: 58px;
+  height: 64px;
   width: auto;
-  max-width: 90px;
+  max-width: 110px;
+  justify-self: end;
 }
 
 .viewer-logo {
@@ -402,7 +403,7 @@ select {
 .section-label {
   margin: 14px 16px 8px;
   color: rgba(255, 255, 255, .68);
-  font-size: 30px;
+  font-size: 15px;
   font-weight: 900;
   letter-spacing: 1.2px;
   text-transform: uppercase;
@@ -502,9 +503,9 @@ select {
 }
 
 .admin-mini-header .viewer-logos {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  display: flex;
   align-items: center;
+  justify-content: space-between;
   width: 100%;
   gap: 12px;
   margin-bottom: 10px;
@@ -514,29 +515,31 @@ select {
 .admin-mini-header .viewer-logos > img {
   display: block;
   object-fit: contain;
-  position: static;
-  transform: none;
+  flex-shrink: 0;
 }
 
 .admin-mini-header .viewer-logos > img:nth-child(1) {
-  justify-self: start;
   height: 48px;
   width: auto;
   max-width: 72px;
+  order: 1;
 }
 
 .admin-mini-header .viewer-logos > img:nth-child(2) {
-  justify-self: center;
   height: 38px;
   width: auto;
   max-width: 220px;
+  order: 2;
+  margin: 0 auto;
+  flex-grow: 1;
+  object-position: center;
 }
 
 .admin-mini-header .viewer-logos > img:nth-child(3) {
-  justify-self: end;
   height: 48px;
   width: auto;
   max-width: 72px;
+  order: 3;
 }
 
 .admin-title-fields {
